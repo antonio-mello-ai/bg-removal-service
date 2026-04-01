@@ -21,6 +21,12 @@ Dois modos de operacao:
 - **Consumidores**: ERP Desmanches (VM 210), qualquer servico via HTTP
 - **Systemd**: `bg-removal.service`
 
+## Setup obrigatório após clone
+
+Executar uma vez: `git config core.hooksPath .githooks`
+
+Isso ativa o pre-push hook que exige bump do arquivo `VERSION` quando há mudanças de código.
+
 ## Regras
 
 - Output sempre JPEG (quality 95) com fundo solido (white ou gray)

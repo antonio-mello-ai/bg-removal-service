@@ -1,4 +1,4 @@
-# GEMINI.md - bg-removal-service
+# CLAUDE.md - bg-removal-service
 
 Servico de remocao de fundo de imagens com IA. Deploy na VM 151 (llm-gpu-linux, RTX 5090).
 
@@ -20,6 +20,12 @@ Dois modos de operacao:
 - **VM 151**: GPU RTX 5090 (32GB VRAM), vLLM usa 92% VRAM. BG Removal roda 100% CPU para nao competir
 - **Consumidores**: ERP Desmanches (VM 210), qualquer servico via HTTP
 - **Systemd**: `bg-removal.service`
+
+## Setup obrigatório após clone
+
+Executar uma vez: `git config core.hooksPath .githooks`
+
+Isso ativa o pre-push hook que exige bump do arquivo `VERSION` quando há mudanças de código.
 
 ## Regras
 
