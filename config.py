@@ -9,9 +9,6 @@ from pathlib import Path
 HOST = os.getenv("BG_REMOVAL_HOST", "0.0.0.0")
 PORT = int(os.getenv("BG_REMOVAL_PORT", "8002"))
 
-# --- Device ---
-DEVICE = os.getenv("BG_REMOVAL_DEVICE", "cuda")
-
 # --- Models ---
 REMBG_MODEL = "isnet-general-use"
 
