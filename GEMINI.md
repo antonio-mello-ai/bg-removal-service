@@ -1,3 +1,21 @@
+---
+title: CLAUDE.md - bg-removal-service
+kind: runbook
+area: operations
+project: bg-removal-service
+collection: bg-removal-service
+owner: bg-removal-service
+status: watch
+canonical: GEMINI.md
+globalRef: "qmd://bg-removal-service/GEMINI.md"
+reviewCadenceDays: 60
+lastReviewedAt: 2026-06-10
+sourceRefs: []
+related: []
+supersedes: []
+supersededBy: []
+sensitivity: restricted
+---
 # CLAUDE.md - bg-removal-service
 
 Servico de remocao de fundo de imagens com IA. Deploy na VM 151 (llm-gpu-linux, RTX 5090).
