@@ -1,3 +1,21 @@
+---
+title: bg-removal-service
+kind: source_doc
+area: operations
+project: bg-removal-service
+collection: bg-removal-service
+owner: bg-removal-service
+status: watch
+canonical: README.md
+globalRef: "qmd://bg-removal-service/README.md"
+reviewCadenceDays: 90
+lastReviewedAt: 2026-06-10
+sourceRefs: []
+related: []
+supersedes: []
+supersededBy: []
+sensitivity: internal
+---
 # bg-removal-service
 
 Background removal service for product images. Runs both models on CPU — zero GPU impact if you're running other GPU workloads on the same machine.
