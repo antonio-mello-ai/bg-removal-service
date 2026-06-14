@@ -76,32 +76,75 @@ source ~/bg-removal-env/bin/activate
 pip install torch torchvision
 
 # 3. Install dependencies
-pip install -r requirements.txt
+## Response Format
 
-# 4. Download SAM ViT-L checkpoint
-mkdir -p ~/models
-wget -P ~/models/ \
-  https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
+### `/remove-background`
+Returns the processed image as a binary file.
 
-# 5. Install systemd service (optional)
-sudo cp systemd/bg-removal.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now bg-removal
+| Field | Type | Description |
+|-------|------|-------------|
+| Response Body | `binary` | Processed image file |
+| Content-Type | `image/jpeg` | Output format |
 
-# 6. Verify
-curl http://localhost:8002/health
+### `/health`
+```json
+{
+  "status": "ok",
+  "models": {
+    "isnet": "loaded",
+    "sam": "loaded"
+  }
+}
 ```
 
-## Systemd service
+## Error Codes
 
-Edit `systemd/bg-removal.service` to match your paths and username before installing.
+| Status Code | Meaning |
+|-------------|---------|
+| `200` | Success |
+| `400` | Bad request — missing or invalid image/points |
+| `422` | Unprocessable entity — invalid input format |
+| `500` | Internal server error — model failure |
 
-## Logs
+## Python Client Examples
 
-```bash
-sudo journalctl -u bg-removal -f
+```python
+# Automatic background removal
+import requests
+
+with open("photo.jpg", "rb") as image_file:
+    response = requests.post(
+        "http://localhost:8002/remove-background",
+        files={"image": image_file},
+        data={"background": "white"}
+    )
+
+with open("result.jpg", "wb") as output:
+    output.write(response.content)
+
+print("Status:", response.status_code)
 ```
 
-## License
+```python
+# Refinement with point prompts
+import requests
+import json
 
-MIT
+points = [
+    {"x": 300, "y": 250, "label": 0},  # background
+    {"x": 150, "y": 100, "label": 1}   # object
+]
+
+with open("photo.jpg", "rb") as image_file:
+    response = requests.post(
+        "http://localhost:8002/remove-background/refine",
+        files={"image": image_file},
+        data={
+            "points": json.dumps(points),
+            "background": "white"
+        }
+    )
+
+with open("result_refined.jpg", "wb") as output:
+    output.write(response.content)
+```
