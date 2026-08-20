@@ -1,6 +1,6 @@
 ---
 title: bg-removal-service
-kind: source_doc
+kind: source-doc
 area: operations
 project: bg-removal-service
 collection: bg-removal-service
