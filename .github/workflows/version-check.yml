@@ -15,6 +15,10 @@ jobs:
 
       - name: Check VERSION bump on code changes
         run: |
+          if ! git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            echo "Initial repository snapshot — VERSION is the baseline"
+            exit 0
+          fi
           CHANGED=$(git diff --name-only HEAD~1 HEAD)
           CODE_CHANGED=$(echo "$CHANGED" | grep -vE '^(docs/|\.githooks/|\.md$|\.agents/|CLAUDE\.md|AGENTS\.md|GEMINI\.md|\.github/|LICENSE|\.gitignore)' || true)
           if [ -z "$CODE_CHANGED" ]; then
