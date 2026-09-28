@@ -1,0 +1,21 @@
+[Unit]
+Description=Background Removal API (IS-Net + SAM ViT-L)
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/bg-removal-service
+Environment="PATH=/home/YOUR_USER/bg-removal-env/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/home/YOUR_USER/bg-removal-env/bin/uvicorn api:app \
+    --host 0.0.0.0 \
+    --port 8002 \
+    --workers 1 \
+    --log-level info
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
