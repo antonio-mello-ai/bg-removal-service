@@ -1,5 +1,5 @@
 # Background Removal Service - Dependencies
-# Install in dedicated venv: /home/amello/bg-removal-env
+# Install in a dedicated virtual environment.
 
 # API framework
 fastapi>=0.115.0

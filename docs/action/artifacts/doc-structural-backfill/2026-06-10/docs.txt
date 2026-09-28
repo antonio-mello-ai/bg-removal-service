@@ -1,4 +1,0 @@
-AGENTS.md
-CLAUDE.md
-GEMINI.md
-README.md

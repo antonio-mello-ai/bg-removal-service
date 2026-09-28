@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Background Removal Service",
     description="Automatic and interactive background removal for product images",
-    version="1.0.0",
+    version="1.0.2",
     lifespan=lifespan,
 )
 

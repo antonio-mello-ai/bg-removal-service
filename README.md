@@ -1,106 +1,110 @@
 ---
-title: bg-removal-service
-kind: source-doc
-area: operations
+title: Background Removal Service
+kind: source_doc
+area: engineering
 project: bg-removal-service
 collection: bg-removal-service
-owner: bg-removal-service
-status: watch
+owner: maintainers
+status: current
 canonical: README.md
-globalRef: "qmd://bg-removal-service/README.md"
+globalRef: qmd://bg-removal-service/README.md
 reviewCadenceDays: 90
-lastReviewedAt: 2026-06-10
+lastReviewedAt: 2026-09-28
 sourceRefs: []
-related: []
+related:
+  - docs/index.md
+  - docs/fluxos-negocio.md
+  - docs/arquitetura.md
+  - docs/operacao.md
 supersedes: []
 supersededBy: []
-sensitivity: internal
+sensitivity: public
 ---
-# bg-removal-service
+# Background Removal Service
 
-Background removal service for product images. Runs both models on CPU — zero GPU impact if you're running other GPU workloads on the same machine.
+A small FastAPI reference service for removing image backgrounds automatically
+and refining the result with point prompts.
 
-## Models
+This repository is maintained as an open-source showcase. It does not represent
+an active hosted service operated by the maintainers.
 
-| Model | Function | Device | RAM |
-|-------|----------|--------|-----|
-| IS-Net (rembg) | Automatic background removal | CPU | ~200MB |
-| SAM ViT-L | Interactive refinement with point prompts | CPU | ~1.5GB |
+## How it works
 
-## Endpoints
+| Model | Role | Execution selected by the code |
+|---|---|---|
+| IS-Net via `rembg` | Automatic foreground mask | CPU |
+| SAM ViT-L | Point-guided mask refinement | CPU |
+
+The API supports two flows:
 
 | Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Model status |
-| `/remove-background` | POST | Automatic removal (IS-Net) |
-| `/remove-background/refine` | POST | Refinement with user points (SAM) |
+|---|---|---|
+| `/health` | GET | Reports whether both models are loaded |
+| `/remove-background` | POST | Removes the background automatically |
+| `/remove-background/refine` | POST | Adjusts the automatic mask with user points |
 
-### POST /remove-background
+Both image endpoints currently return JPEG with a solid white or gray
+background.
+
+## Quick start
+
+Prerequisites:
+
+- Python 3.10+
+- enough memory for IS-Net and SAM ViT-L
+- a locally downloaded SAM ViT-L checkpoint
 
 ```bash
-curl -X POST http://localhost:8002/remove-background \
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+mkdir -p models
+wget -P models/ \
+  https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
+
+SAM_CHECKPOINT="$PWD/models/sam_vit_l_0b3195.pth" \
+uvicorn api:app --host 127.0.0.1 --port 8002
+```
+
+Verify:
+
+```bash
+curl http://127.0.0.1:8002/health
+```
+
+Automatic removal:
+
+```bash
+curl -X POST http://127.0.0.1:8002/remove-background \
   -F "image=@photo.jpg" \
   -F "background=white" \
   -o result.jpg
 ```
 
-### POST /remove-background/refine
-
-The refinement endpoint starts from the IS-Net mask as a base. For each user point, SAM segments the local region (always the smallest mask) and subtracts or adds from the base mask.
+Point-guided refinement:
 
 ```bash
-curl -X POST http://localhost:8002/remove-background/refine \
+curl -X POST http://127.0.0.1:8002/remove-background/refine \
   -F "image=@photo.jpg" \
-  -F 'points=[{"x": 300, "y": 250, "label": 0}]' \
+  -F 'points=[{"x":300,"y":250,"label":0}]' \
   -F "background=white" \
-  -o result_refined.jpg
+  -o result-refined.jpg
 ```
 
-Points:
-- `label=0` — "this is background" (remove from mask)
-- `label=1` — "this is object" (add to mask)
+- `label=0`: remove the selected region from the foreground mask.
+- `label=1`: add the selected region to the foreground mask.
 
-### Available backgrounds
+## Security boundary
 
-- `white` (255, 255, 255) — marketplace standard
-- `gray` (224, 224, 224) — internal catalog
+The application has no built-in authentication, rate limiting, or TLS. Keep it
+bound to loopback for local use. Before exposing it to a network, place it
+behind an authenticated reverse proxy and define request-size, concurrency,
+timeout, logging, and retention controls. See [operations](docs/operacao.md).
 
-## Setup
+## Documentation
 
-```bash
-# 1. Create venv
-python3 -m venv ~/bg-removal-env
-source ~/bg-removal-env/bin/activate
-
-# 2. Install PyTorch (adjust for your CUDA version or use CPU)
-pip install torch torchvision
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Download SAM ViT-L checkpoint
-mkdir -p ~/models
-wget -P ~/models/ \
-  https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
-
-# 5. Install systemd service (optional)
-sudo cp systemd/bg-removal.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now bg-removal
-
-# 6. Verify
-curl http://localhost:8002/health
-```
-
-## Systemd service
-
-Edit `systemd/bg-removal.service` to match your paths and username before installing.
-
-## Logs
-
-```bash
-sudo journalctl -u bg-removal -f
-```
+Start at [docs/index.md](docs/index.md).
 
 ## License
 
